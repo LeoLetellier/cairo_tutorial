@@ -1,0 +1,8 @@
+[package]
+name = "cairo_tutorial"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cairo-rs = { version = "0.20.7", features = ["png"] }
+rand = "0.9.0"
