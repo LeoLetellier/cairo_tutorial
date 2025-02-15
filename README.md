@@ -47,3 +47,24 @@ cargo add cairo -F png
 ````
 
 > Follow the example functions starting by `principle` in ``main.rs``.
+
+Basicaly, one need to:
+
+1. Create a surface into which we will be drawing (the canvas)
+2. Create a context through which we will be drawing (the pen)
+3. Create a path for the context (the route plan for the pen)
+4. Associate properties to the context (what pen color, ...)
+5. Stroke or fill based on the path and properties
+
+# Example Functions
+
+| Function | Output |
+| -------- | ------ |
+| `principle` | ![principle output](example_output/principle.png) |
+| `paint` | ![paint output](example_output/paint.png) |
+| `rand_lines` | ![rand lines output](example_output/rand_lines.png) |
+| `basics` | ![basics output](example_output/basics.png) |
+| `mask` | ![mask output](example_output/mask.png) |
+| `source1` | ![source1](example_output/source1.png) |
+| `source2` | ![source2](example_output/source2.png) |
+| `curves` | ![curves](example_output/curves.png) |
