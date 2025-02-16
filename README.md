@@ -68,3 +68,5 @@ Basicaly, one need to:
 | `source1` | ![source1](example_output/source1.png) |
 | `source2` | ![source2](example_output/source2.png) |
 | `curves` | ![curves](example_output/curves.png) |
+| `pattern` | ![pattern](example_output/pattern.png) |
+| `scale` | ![scale](example_output/scale.png) |

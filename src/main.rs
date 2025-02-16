@@ -12,6 +12,8 @@ fn main() {
     source1();
     source2();
     curves();
+    pattern();
+    scale();
 }
 
 /// Basic principles for using cairo
@@ -94,7 +96,7 @@ pub fn rand_lines() {
 }
 
 /// Basic usage of cairo capabilities
-/// 
+///
 /// Adapted from [Cairo Tutorials](https://www.cairographics.org/tutorial/)
 pub fn basics() {
     let surface = ImageSurface::create(Format::ARgb32, 200, 200).expect("Failed to create surface");
@@ -129,7 +131,7 @@ pub fn basics() {
 }
 
 /// Use gradients (linear and radial) as base for coloring or masking
-/// 
+///
 /// Adapted from [Cairo Tutorials](https://www.cairographics.org/tutorial/)
 fn mask() {
     let surface = ImageSurface::create(Format::ARgb32, 200, 200).expect("Failed to create surface");
@@ -165,7 +167,7 @@ fn mask() {
 }
 
 /// Example of handling multiple element with different sources for coloring
-/// 
+///
 /// Adapted from [Cairo Tutorials](https://www.cairographics.org/tutorial/)
 fn source1() {
     let surface = ImageSurface::create(Format::ARgb32, 200, 200).expect("Failed to create surface");
@@ -202,7 +204,7 @@ fn source1() {
 }
 
 /// Example of handling multiple element with different gradients
-/// 
+///
 /// Adapted from [Cairo Tutorials](https://www.cairographics.org/tutorial/)
 fn source2() {
     let surface = ImageSurface::create(Format::ARgb32, 200, 200).expect("Failed to create surface");
@@ -258,7 +260,7 @@ fn source2() {
 }
 
 /// Usage of curves, arcs, segments, and path closing
-/// 
+///
 /// Adapted from [Cairo Tutorials](https://www.cairographics.org/tutorial/)
 fn curves() {
     let surface = ImageSurface::create(Format::ARgb32, 200, 200).expect("Failed to create surface");
@@ -290,6 +292,70 @@ fn curves() {
     context.stroke().expect("Failed to stroke!");
 
     let mut file = File::create("example_output/curves.png").expect("Failed to create file!");
+    surface
+        .write_to_png(&mut file)
+        .expect("Failed to write png!");
+}
+
+/// Working with patterns and masks to create complex images
+fn pattern() {
+    let surface = ImageSurface::create(Format::ARgb32, 200, 200).expect("Failed to create surface");
+    let context = Context::new(&surface).expect("Failed to create context!");
+    context.set_source_rgba(1.0, 1.0, 1.0, 1.0);
+    context.paint().expect("Failed to paint!");
+
+    // Draw a red line on a second surface
+    let pattern_surface = surface.clone();
+    let pattern_context = Context::new(&pattern_surface).expect("Failed to create context!");
+    pattern_context.set_source_rgb(1.0, 0.0, 0.0);
+    pattern_context.set_line_width(8.0);
+    pattern_context.move_to(100.0, 0.0);
+    pattern_context.line_to(100.0, 200.0);
+    pattern_context.stroke().expect("Failed to stroke!");
+
+    // Create a pattern using the second surface
+    let pattern = cairo::SurfacePattern::create(pattern_surface);
+
+    // Make the pattern repeating
+    pattern.set_extend(cairo::Extend::Repeat);
+    // Define a valid matrix
+    // x_new = xx * x + xy * y + x0
+    // y_new = yx * x + yy * y + y0
+    // see [cairo_matrix_t](https://www.cairographics.org/manual/cairo-cairo-matrix-t.html#cairo-matrix-t)
+    // Seems that xx and yy can't be null
+    let matrix = cairo::Matrix::new(60.0, 0.0, 0.0, 1.0, 10.0, 0.0);
+    pattern.set_matrix(matrix);
+
+    // Set the operation between masks
+    context.set_operator(cairo::Operator::Atop);
+    // Apply the pattern onto the main surface
+    context.set_source(pattern).expect("Failed to set source!");
+    context.paint().expect("Failed to paint!");
+
+    let mut file = File::create("example_output/pattern.png").expect("Failed to create file!");
+    surface
+        .write_to_png(&mut file)
+        .expect("Failed to write png!");
+}
+
+/// Setup a local scale to abstract over the real image pixel resolution
+fn scale() {
+    let surface = ImageSurface::create(Format::ARgb32, 200, 200).expect("Failed to create surface");
+    let context = Context::new(&surface).expect("Failed to create context!");
+
+    // Define the working frame to be of 150 pixels wide and high
+    // Deplace the working frame of 25 pixels on x and y to center it
+    // The coordinates inside the working frame range from 0 to 1
+    context.scale(150.0, 150.0);
+    context.translate(1.0 / 6.0, 1.0 / 6.0);
+    // Could also translate from 25 pixels (25/150=1/6), and then scale to 150
+
+    // Fill a rectangle in the whole working area
+    context.rectangle(0.0, 0.0, 1.0, 1.0);
+    context.set_source_rgb(1.0, 1.0, 0.0);
+    context.fill().expect("Failed to fill!");
+
+    let mut file = File::create("example_output/scale.png").expect("Failed to create file!");
     surface
         .write_to_png(&mut file)
         .expect("Failed to write png!");
